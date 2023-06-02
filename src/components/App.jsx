@@ -19,8 +19,8 @@ export class App extends Component {
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    const { collections, query, page } = this.state;
-    if (prevState.query !== this.state.query) {
+    const { query, page } = this.state;
+    if (prevState.query !== query) {
       this.setState({ collections: [] });
     }
     if (prevState.query !== query || prevState.page !== page) {
@@ -30,12 +30,12 @@ export class App extends Component {
           `?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
         );
         this.setState({
-          collections: [...collections, ...response.data.hits],
+          collections: [...this.state.collections, ...response.data.hits],
         });
         if (response.data.hits.length === 0) {
           toast.error(`Відповідь на запит ${query} відсутня :(`);
         }
-        if (page !== 1) {
+        if (this.state.page !== 1) {
           this.smoothScroll();
         }
       } catch {
@@ -47,7 +47,7 @@ export class App extends Component {
   }
 
   addImage = ({ query }) => {
-    this.setState({ query: query });
+    this.setState({ query });
   };
 
   smoothScroll = () => {
