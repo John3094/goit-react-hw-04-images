@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Modal } from '../Modal/Modal';
 import { ImageGalleryStyled, ImageStyled } from './ImageGalleryItem.styled';
 
@@ -28,3 +29,10 @@ export class ImageGalleryItem extends Component {
     );
   }
 }
+
+ImageGalleryItem.propTypes = {
+  collection: PropTypes.shape({
+    webformatURL: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+  }),
+};

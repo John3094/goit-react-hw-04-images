@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ImageGalleryStyled } from './ImageGallery.styled';
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 
@@ -10,4 +11,10 @@ export const ImageGallery = ({ collections }) => {
       })}
     </ImageGalleryStyled>
   );
+};
+
+ImageGallery.propTypes = {
+  collection: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }),
 };
