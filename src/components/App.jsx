@@ -46,7 +46,7 @@ export class App extends Component {
     }
   }
 
-  addImage = ({ query }) => {
+  addImage = query => {
     this.setState({ query });
   };
 
