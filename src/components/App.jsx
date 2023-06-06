@@ -17,7 +17,7 @@ export class App extends Component {
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    const { collections, query, page } = this.state;
+    const { query, page } = this.state;
     if (prevState.query !== query) {
       this.setState({ collections: [] });
       this.setState({ page: 1 });
@@ -25,9 +25,10 @@ export class App extends Component {
     if (prevState.query !== query || prevState.page !== page) {
       try {
         this.setState({ isLoding: true });
+
         const collectionsList = await getImages(query, page);
         this.setState({
-          collections: [...collections, ...collectionsList.hits],
+          collections: [...this.state.collections, ...collectionsList.hits],
           totalHits: collectionsList.totalHits,
         });
         if (collectionsList.totalHits === 0) {
