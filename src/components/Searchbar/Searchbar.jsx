@@ -17,9 +17,12 @@ export class Searchbar extends Component {
   };
 
   handleSubmit = e => {
+    const { query } = this.state;
     e.preventDefault();
-    this.props.onSubmit(this.state.query.trim());
-    this.reset();
+    if (query.length !== 0) {
+      this.props.onSubmit(query.trim());
+      this.reset();
+    }
   };
 
   reset = () => {
