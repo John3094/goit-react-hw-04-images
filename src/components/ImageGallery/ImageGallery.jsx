@@ -15,6 +15,6 @@ export const ImageGallery = ({ collections }) => {
 
 ImageGallery.propTypes = {
   collection: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
   }),
 };

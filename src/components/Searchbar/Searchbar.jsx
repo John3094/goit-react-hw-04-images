@@ -1,4 +1,6 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
+import toast from 'react-hot-toast';
 import {
   Header,
   SearchForm,
@@ -12,6 +14,10 @@ export class Searchbar extends Component {
     query: '',
   };
 
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
+
   handleChange = e => {
     this.setState({ query: e.currentTarget.value });
   };
@@ -19,10 +25,11 @@ export class Searchbar extends Component {
   handleSubmit = e => {
     const { query } = this.state;
     e.preventDefault();
-    if (query.length !== 0) {
-      this.props.onSubmit(query.trim());
-      this.reset();
+    if (query.trim() === '') {
+      return toast.error('Не можливо зробити запит по порожньому рядку :(');
     }
+    this.props.onSubmit(query);
+    this.reset();
   };
 
   reset = () => {
@@ -36,7 +43,6 @@ export class Searchbar extends Component {
           <Button type="submit">
             <ButtonLabel>Search</ButtonLabel>
           </Button>
-
           <Input
             type="text"
             autoComplete="off"

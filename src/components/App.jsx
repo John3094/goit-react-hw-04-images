@@ -16,37 +16,32 @@ export class App extends Component {
     isLoding: false,
   };
 
-  async componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(_, prevState) {
     const { query, page } = this.state;
-    if (prevState.query !== query) {
-      this.setState({ collections: [] });
-      this.setState({ page: 1 });
-    }
     if (prevState.query !== query || prevState.page !== page) {
       try {
         this.setState({ isLoding: true });
-
-        const collectionsList = await getImages(query, page);
-        this.setState({
-          collections: [...this.state.collections, ...collectionsList.hits],
-          totalHits: collectionsList.totalHits,
-        });
-        if (collectionsList.totalHits === 0) {
-          toast.error(`Відповідь на запит ${query} відсутня :(`);
+        const { hits, totalHits } = await getImages(query, page);
+        this.setState(prevState => ({
+          collections: [...prevState.collections, ...hits],
+          totalHits: totalHits,
+        }));
+        if (hits.length === 0) {
+          return toast.error(`Відповідь на запит ${query} відсутня :(`);
         }
         if (this.state.page !== 1) {
           this.smoothScroll();
         }
-      } catch {
-        toast.error('Помилка, спробуйте ще раз :(');
+      } catch (error) {
+        toast.error(`Помилка, спробуйте ще раз ${error.message} :(`);
       } finally {
         this.setState({ isLoding: false });
       }
     }
   }
 
-  addImage = query => {
-    this.setState({ query });
+  handleSubmit = query => {
+    this.setState({ query, page: 1, collections: [] });
   };
 
   smoothScroll = () => {
@@ -63,19 +58,19 @@ export class App extends Component {
   };
 
   render() {
-    const { collections, page, isLoding } = this.state;
+    const { collections, isLoding, totalHits } = this.state;
+    const allPage = totalHits / collections.length;
     return (
       <Container>
-        <Searchbar onSubmit={this.addImage} />
-        {collections && <ImageGallery collections={collections} page={page} />}
-        {collections.length > 0 &&
-          this.state.totalHits / 12 > this.state.page && (
-            <ButtonLoadMore onClick={this.onClickLoadMoreBtn} />
-          )}
+        <Searchbar onSubmit={this.handleSubmit} />
+        {collections.length !== 0 && <ImageGallery collections={collections} />}
+        {allPage > 1 && !isLoding && collections.length > 0 && (
+          <ButtonLoadMore onClick={this.onClickLoadMoreBtn} />
+        )}
         <Toaster
           toastOptions={{ style: { background: '#ff1111', color: '#fff' } }}
         />
-        {isLoding === true && <Loader />}
+        {isLoding && <Loader />}
       </Container>
     );
   }

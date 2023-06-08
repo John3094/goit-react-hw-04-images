@@ -12,7 +12,7 @@ export const getImages = async (query, page) => {
   const config = {
     params: {
       q: query,
-      page: page,
+      page,
     },
   };
   const response = await axios.get('', config);
