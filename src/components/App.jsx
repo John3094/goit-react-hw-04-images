@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { getImages } from '../service/Api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Searchbar } from './Searchbar/Searchbar';
@@ -7,71 +7,67 @@ import { ButtonLoadMore } from './Button/Button';
 import { Loader } from './Loader/Loader';
 import { Container } from './App.styled';
 
-export class App extends Component {
-  state = {
-    collections: [],
-    query: '',
-    page: 1,
-    totalHits: 0,
-    isLoding: false,
-  };
+export const App = () => {
+  const [collections, setCollections] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(0);
+  const [isLoding, setIsLoding] = useState(false);
 
-  async componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
-    if (prevState.query !== query || prevState.page !== page) {
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    const fetchImages = async (query, page) => {
+      setIsLoding(true);
       try {
-        this.setState({ isLoding: true });
         const { hits, totalHits } = await getImages(query, page);
-        this.setState(prevState => ({
-          collections: [...prevState.collections, ...hits],
-          totalHits: totalHits,
-        }));
         if (hits.length === 0) {
           return toast.error(`Відповідь на запит ${query} відсутня :(`);
         }
-        if (this.state.page !== 1) {
-          this.smoothScroll();
+        setCollections(prev => [...prev, ...hits]);
+        setTotalHits(totalHits);
+        if (page !== 1) {
+          smoothScroll();
         }
       } catch (error) {
         toast.error(`Помилка, спробуйте ще раз ${error.message} :(`);
       } finally {
-        this.setState({ isLoding: false });
+        setIsLoding(false);
       }
-    }
-  }
+    };
+    fetchImages(query, page);
+  }, [query, page]);
 
-  handleSubmit = query => {
-    this.setState({ query, page: 1, collections: [] });
+  const handleSubmit = query => {
+    setQuery(query);
+    setPage(1);
+    setCollections([]);
   };
 
-  smoothScroll = () => {
+  const smoothScroll = () => {
     window.scrollBy({
       top: 300,
       behavior: 'smooth',
     });
   };
 
-  onClickLoadMoreBtn = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const onClickLoadMoreBtn = () => {
+    setPage(prev => [prev + 1]);
   };
 
-  render() {
-    const { collections, isLoding, totalHits } = this.state;
-    const allPage = totalHits / collections.length;
-    return (
-      <Container>
-        <Searchbar onSubmit={this.handleSubmit} />
-        {collections.length !== 0 && <ImageGallery collections={collections} />}
-        {allPage > 1 && !isLoding && collections.length > 0 && (
-          <ButtonLoadMore onClick={this.onClickLoadMoreBtn} />
-        )}
-        <Toaster
-          toastOptions={{ style: { background: '#ff1111', color: '#fff' } }}
-        />
-        {isLoding && <Loader />}
-      </Container>
-    );
-  }
-}
+  const allPage = totalHits / collections.length;
+  return (
+    <Container>
+      <Searchbar onSubmit={handleSubmit} />
+      {collections.length !== 0 && <ImageGallery collections={collections} />}
+      {allPage > 1 && !isLoding && collections.length > 0 && (
+        <ButtonLoadMore onClick={onClickLoadMoreBtn} />
+      )}
+      <Toaster
+        toastOptions={{ style: { background: '#ff1111', color: '#fff' } }}
+      />
+      {isLoding && <Loader />}
+    </Container>
+  );
+};
