@@ -53,10 +53,11 @@ export const App = () => {
   };
 
   const onClickLoadMoreBtn = () => {
-    setPage(prev => [prev + 1]);
+    setPage(prev => prev + 1);
   };
 
   const allPage = totalHits / collections.length;
+
   return (
     <Container>
       <Searchbar onSubmit={handleSubmit} />
